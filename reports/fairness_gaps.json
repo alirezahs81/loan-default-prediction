@@ -1,0 +1,20 @@
+{
+  "Gender": {
+    "predicted_positive_rate_max_min_gap": 0.05583318371336804,
+    "TPR_max_min_gap": 0.021310281094442773,
+    "FPR_max_min_gap": 0.007015906645143934,
+    "FNR_max_min_gap": 0.021310281094442773
+  },
+  "Region": {
+    "predicted_positive_rate_max_min_gap": 0.04869032468109036,
+    "TPR_max_min_gap": 0.0557132188200149,
+    "FPR_max_min_gap": 0.00492664382094667,
+    "FNR_max_min_gap": 0.0557132188200149
+  },
+  "age": {
+    "predicted_positive_rate_max_min_gap": 0.07548910398072409,
+    "TPR_max_min_gap": 0.13083442332156736,
+    "FPR_max_min_gap": 0.017518379106706585,
+    "FNR_max_min_gap": 0.13083442332156736
+  }
+}
