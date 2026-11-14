@@ -1,0 +1,20 @@
+{
+  "model": "HistGradientBoosting",
+  "threshold": 0.5,
+  "accuracy": 0.9004506625411987,
+  "precision_default": 0.9371497197758206,
+  "recall_default": 0.6389192139737991,
+  "f1_default": 0.7598182408308991,
+  "roc_auc": 0.8977056518655133,
+  "pr_auc": 0.8474686314944597,
+  "brier_score": 0.08088384114148822,
+  "tn": 22092,
+  "fp": 314,
+  "fn": 2646,
+  "tp": 4682,
+  "validation_pr_auc": 0.8339407855514277,
+  "validation_roc_auc": 0.889760105732362,
+  "model_selection_partition": "validation (20% of full dataset)",
+  "final_evaluation_partition": "untouched test (20% of full dataset)",
+  "note": "Historical local evaluation snapshot; regenerate from the source dataset before relying on these values."
+}
