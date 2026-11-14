@@ -1,0 +1,3 @@
+model,validation_threshold,validation_accuracy,validation_precision_default,validation_recall_default,validation_f1_default,validation_roc_auc,validation_pr_auc,validation_brier_score,validation_tn,validation_fp,validation_fn,validation_tp
+HistGradientBoosting,0.5,0.8931526198964149,0.9306910147333471,0.6120360262008734,0.7384539392442578,0.889760105732362,0.8339407855514277,0.08574477306954419,22072,334,2843,4485
+LogisticRegression_balanced,0.5,0.8234680836752539,0.6477191985220975,0.6219978165938864,0.6345979812043161,0.8340341454907002,0.7510863239457122,0.13868327666682748,19927,2479,2770,4558
