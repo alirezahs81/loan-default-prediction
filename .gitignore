@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+.DS_Store
+models/*.joblib
+data/*.csv
+reports/holdout_predictions.csv
