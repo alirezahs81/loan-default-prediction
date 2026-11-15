@@ -87,8 +87,12 @@ def test_bootstrap_intervals_reproducible():
     y = np.array([0, 1] * 100)
     pred = np.array([0, 1, 1, 1] * 50)
     groups = np.array(["A"] * 100 + ["B"] * 100)
-    first = fairness_gap_bootstrap_ci(y, pred, groups, min_group_size=50, n_bootstrap=100, random_state=7)
-    second = fairness_gap_bootstrap_ci(y, pred, groups, min_group_size=50, n_bootstrap=100, random_state=7)
+    first = fairness_gap_bootstrap_ci(
+        y, pred, groups, min_group_size=50, n_bootstrap=100, random_state=7
+    )
+    second = fairness_gap_bootstrap_ci(
+        y, pred, groups, min_group_size=50, n_bootstrap=100, random_state=7
+    )
     assert first == second
     for metric in first["metrics"].values():
         assert 0 <= metric["ci_lower"] <= metric["ci_upper"] <= 1
