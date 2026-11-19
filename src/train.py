@@ -101,23 +101,41 @@ def _json_safe(value):
     return value
 
 
-def _write_calibration_and_threshold_reports(y_test, probability) -> None:
-    observed, predicted = calibration_curve(y_test, probability, n_bins=10, strategy="quantile")
-    pd.DataFrame({
-        "bin": np.arange(1, len(observed) + 1),
-        "mean_predicted_probability": predicted, "observed_default_rate": observed,
-    }).to_csv(REPORT_DIR / "calibration_curve.csv", index=False)
+def _threshold_analysis_frame(y_validation, validation_probability) -> pd.DataFrame:
+    """Summarize candidate thresholds using validation predictions only."""
     rows = []
     for threshold in (0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80):
-        pred = (probability >= threshold).astype(int)
+        prediction = (validation_probability >= threshold).astype(int)
         rows.append({
-            "threshold": threshold, "accuracy": accuracy_score(y_test, pred),
-            "precision_default": precision_score(y_test, pred, zero_division=0),
-            "recall_default": recall_score(y_test, pred, zero_division=0),
-            "f1_default": f1_score(y_test, pred, zero_division=0),
-            "predicted_default_rate": float(pred.mean()),
+            "threshold": threshold,
+            "accuracy": accuracy_score(y_validation, prediction),
+            "precision_default": precision_score(
+                y_validation, prediction, zero_division=0,
+            ),
+            "recall_default": recall_score(
+                y_validation, prediction, zero_division=0,
+            ),
+            "f1_default": f1_score(y_validation, prediction, zero_division=0),
+            "predicted_default_rate": float(prediction.mean()),
         })
-    pd.DataFrame(rows).to_csv(REPORT_DIR / "threshold_analysis.csv", index=False)
+    return pd.DataFrame(rows)
+
+
+def _write_calibration_and_threshold_reports(
+    y_test, test_probability, y_validation, validation_probability,
+) -> None:
+    """Write test-only calibration diagnostics and validation-only threshold analysis."""
+    observed, predicted = calibration_curve(
+        y_test, test_probability, n_bins=10, strategy="quantile",
+    )
+    pd.DataFrame({
+        "bin": np.arange(1, len(observed) + 1),
+        "mean_predicted_probability": predicted,
+        "observed_default_rate": observed,
+    }).to_csv(REPORT_DIR / "calibration_curve.csv", index=False)
+    _threshold_analysis_frame(
+        y_validation, validation_probability,
+    ).to_csv(REPORT_DIR / "threshold_analysis.csv", index=False)
 
 
 def main(data_path: str | Path = DATA_PATH) -> pd.DataFrame:
@@ -141,10 +159,12 @@ def main(data_path: str | Path = DATA_PATH) -> pd.DataFrame:
     )
 
     results = []
+    validation_probabilities = {}
     for name, estimator in candidate_models().items():
         pipe = build_pipeline(X_fit, estimator)
         pipe.fit(X_fit, y_fit)
-        metrics, _, _ = evaluate(name, pipe, X_val, y_val)
+        metrics, validation_probability, _ = evaluate(name, pipe, X_val, y_val)
+        validation_probabilities[name] = validation_probability
         results.append({"model": name, **{
             f"validation_{k}": v for k, v in metrics.items() if k != "model"
         }})
@@ -235,7 +255,9 @@ def main(data_path: str | Path = DATA_PATH) -> pd.DataFrame:
     (REPORT_DIR / "fairness_gap_confidence_intervals.json").write_text(
         json.dumps(_json_safe(intervals), indent=2), encoding="utf-8",
     )
-    _write_calibration_and_threshold_reports(y_test, probability)
+    _write_calibration_and_threshold_reports(
+        y_test, probability, y_val, validation_probabilities[best_name],
+    )
 
     metadata = {
         "dataset_file": data_path.name,
