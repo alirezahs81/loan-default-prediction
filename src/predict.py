@@ -72,7 +72,10 @@ def _validate_input(input_data: dict, artifact: dict) -> tuple[pd.DataFrame, lis
         frame.at[0, column] = value
         known = known_categories.get(column)
         if known is not None and value not in known:
-            warnings.append(f"Unseen category {value!r} for {column!r}; the encoder will ignore it.")
+            warnings.append(
+                f"Unseen category {value!r} for {column!r}; "
+                "the encoder will ignore it."
+            )
     return frame, warnings
 
 

@@ -68,7 +68,9 @@ def fairness_differences(report: pd.DataFrame) -> dict[str, float | None]:
     result: dict[str, float | None] = {}
     for metric in RATE_METRICS:
         values = usable[metric].dropna()
-        result[f"{metric}_max_min_gap"] = float(values.max() - values.min()) if len(values) >= 2 else None
+        result[f"{metric}_max_min_gap"] = (
+            float(values.max() - values.min()) if len(values) >= 2 else None
+        )
     return result
 
 
