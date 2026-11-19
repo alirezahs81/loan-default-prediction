@@ -7,7 +7,7 @@ from sklearn.dummy import DummyClassifier
 from src.data import load_data
 from src.fairness import fairness_differences, fairness_gap_bootstrap_ci, group_fairness_report
 from src.predict import predict_loan_default
-from src.train import build_preprocessor
+from src.train import build_preprocessor, _threshold_analysis_frame
 
 
 def test_loader_rejects_missing_file():
@@ -96,3 +96,20 @@ def test_bootstrap_intervals_reproducible():
     assert first == second
     for metric in first["metrics"].values():
         assert 0 <= metric["ci_lower"] <= metric["ci_upper"] <= 1
+
+
+
+def test_threshold_analysis_uses_the_supplied_validation_labels_and_probabilities():
+    validation_labels = np.array([0, 1, 1, 0])
+    validation_probabilities = np.array([0.1, 0.8, 0.6, 0.4])
+
+    report = _threshold_analysis_frame(
+        validation_labels, validation_probabilities,
+    )
+
+    baseline = report.loc[report.threshold == 0.5].iloc[0]
+    assert baseline["accuracy"] == 1.0
+    assert baseline["precision_default"] == 1.0
+    assert baseline["recall_default"] == 1.0
+    assert baseline["f1_default"] == 1.0
+    assert len(report) == 7
