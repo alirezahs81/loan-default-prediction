@@ -7,7 +7,7 @@ from sklearn.dummy import DummyClassifier
 from src.data import load_data
 from src.fairness import fairness_differences, fairness_gap_bootstrap_ci, group_fairness_report
 from src.predict import predict_loan_default
-from src.train import build_preprocessor, _threshold_analysis_frame
+from src.train import _threshold_analysis_frame, build_preprocessor
 
 
 def test_loader_rejects_missing_file():
