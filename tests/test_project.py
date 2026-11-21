@@ -113,3 +113,56 @@ def test_threshold_analysis_uses_the_supplied_validation_labels_and_probabilitie
     assert baseline["recall_default"] == 1.0
     assert baseline["f1_default"] == 1.0
     assert len(report) == 7
+
+def test_end_to_end_training_writes_model_and_reports(tmp_path, monkeypatch):
+    """Exercise the complete training workflow without the private source dataset."""
+    import src.train as train_module
+
+    rng = np.random.default_rng(123)
+    row_count = 120
+    numeric = rng.normal(size=row_count)
+    target = (numeric + rng.normal(scale=0.8, size=row_count) > 0).astype(int)
+    synthetic = pd.DataFrame({
+        "ID": np.arange(row_count),
+        "Status": target,
+        "loan_amount": numeric * 1000 + 5000,
+        "purpose": rng.choice(["home", "business", "personal"], size=row_count),
+        "Gender": rng.choice(["Male", "Female"], size=row_count),
+        "Region": rng.choice(["North", "South", "West"], size=row_count),
+        "age": rng.integers(21, 70, size=row_count),
+    })
+    data_path = tmp_path / "synthetic_loans.csv"
+    synthetic.to_csv(data_path, index=False)
+
+    model_path = tmp_path / "models" / "pipeline.joblib"
+    report_dir = tmp_path / "reports"
+    monkeypatch.setattr(train_module, "MODEL_PATH", model_path)
+    monkeypatch.setattr(train_module, "REPORT_DIR", report_dir)
+
+    comparison = train_module.main(data_path)
+
+    assert comparison["model"].nunique() == 2
+    assert model_path.is_file()
+    artifact = joblib.load(model_path)
+    assert artifact["target"] == "Status"
+    assert artifact["threshold"] == 0.5
+    assert artifact["feature_columns"] == ["loan_amount", "purpose"]
+
+    expected_reports = {
+        "model_comparison.csv",
+        "sensitive_feature_ablation.csv",
+        "best_model_metrics.json",
+        "threshold_analysis.csv",
+        "calibration_curve.csv",
+        "fairness_gaps.json",
+        "fairness_gap_confidence_intervals.json",
+        "training_metadata.json",
+    }
+    assert expected_reports.issubset({path.name for path in report_dir.iterdir()})
+    threshold_report = pd.read_csv(report_dir / "threshold_analysis.csv")
+    assert len(threshold_report) == 7
+    assert threshold_report["threshold"].tolist() == [
+        0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8,
+    ]
+    metrics = pd.read_json(report_dir / "best_model_metrics.json", typ="series")
+    assert metrics["final_evaluation_partition"] == "untouched test (20% of full dataset)"
