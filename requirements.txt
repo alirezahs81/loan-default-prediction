@@ -1,7 +1,7 @@
 # Direct dependencies pinned to the versions verified by the 2026-11-19 CI run.
 # Transitive dependencies are still resolved by pip; use a platform-specific lock
 # file if byte-for-byte environment reproduction is required.
-numpy==2.4.6
+numpy==2.5.5
 pandas==3.1.1
 scikit-learn==1.9.1
 joblib==1.6.0
