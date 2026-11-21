@@ -29,7 +29,7 @@ Place the licensed dataset at `data/Loan_Default.csv`, then train:
 python -m src.train
 ```
 
-This generates the fitted pipeline under `models/` and aggregate evaluation reports under `reports/`. These generated artifacts are ignored by Git by default. To run the demo after training:
+This generates the fitted pipeline under `models/` and aggregate evaluation reports under `reports/`. The fitted `*.joblib` model files and `reports/holdout_predictions.csv` are ignored by Git. Aggregate report files (for example, model metrics, fairness gaps, and model comparison tables) are tracked in the repository as historical snapshots; running training again may update or replace those snapshots. To run the demo after training:
 
 ```bash
 streamlit run src/app.py
@@ -81,4 +81,3 @@ Subgroup diagnostics examine predicted-default rates and error rates for Gender,
 - `src/app.py`: Streamlit demonstration.
 - `tests/`: automated tests.
 - `.github/workflows/ci.yml`: tests across Python versions and Ruff lint.
-
